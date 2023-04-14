@@ -124,17 +124,10 @@ class MultiHeadAttention(nn.Module):
         for i in range(self.heads):
             outputs[i] = attention_list[i].forward()
         
-        self.output_tensor = torch.concat(outputs, 2)
+        result = torch.concat(outputs, 2) # This should have size (batch_q = batch_kv, sentence_length_q, reduced_emb * self.heads)
+        self.output_tensor = result.clone()
 
-        return self.output_tensor
-        
-
-
-
-        
-
-
-
+        return result
 
 
         

@@ -54,7 +54,8 @@ class PositionalEmbeddings(nn.Module):
 
         dim_match = ones * self._posencoding_maker() #Broadcast the positional encodings to size of the input tensor
 
-        self.output =  torch.concat((self.inputs, dim_match), 2) # This will append the pos encodings onto the end of every word vector for all groups (batches) of sentences
+        result =  torch.concat((self.inputs, dim_match), 2) # This will append the pos encodings onto the end of every word vector for all groups (batches) of sentences
+        self.output = result.clone()
 
         return self.output
 
