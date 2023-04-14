@@ -8,7 +8,8 @@ class SingleAttention(nn.Module):
     """This class is designed to simulate exactly one attention head. 
     It will take a matrix of (batch_size, sentence_lenght, embedding_size)
     batch_size, sentence_length, and embedding size, are all sizes that are fed into this class
-    these sizes speficically embedding size can be manipulated by linear layers before entering this class"""
+    these sizes speficically embedding size can be manipulated by linear layers before entering this class.
+    Reduced emb is a variable specific to each query, value, and key matrix"""
     def __init__(self, inputs_kv: torch.Tensor, inputs_q:torch.Tensor ,batch_size_kv: int, sentence_length_kv: int, embedding_size_kv: int, batch_size_q:int, sentence_length_q: int, embedding_size_q: int,reduced_emb: int, mask=None) -> None:
         super(SingleAttention, self).__init__()
         assert batch_size_kv == batch_size_q, "The batch sizes of both the kv and q inputs must be equal"
@@ -80,6 +81,60 @@ class SingleAttention(nn.Module):
         self.final = final
 
         return final
+    
+    def forward(self):
+        self._get_querys()
+        self._get_keys()
+        self._get_values()
+        self._get_coefficents()
+
+        return self.get_final()
+
+
+class MultiHeadAttention(nn.Module):
+    """This class implements multihead attention using smaller single head attention modules. The main work being done
+    here is splitting the inputs by their embedding and creating heads amount of single attention classes to give those split workloads too.
+    Remember that the input tensors should have format (batch, sentence_length, embedding_size ) and so should the output tensors"""
+    def __init__(self, heads: int, inputs_kv: torch.Tensor, inputs_q:torch.Tensor ,batch_size_kv: int, sentence_length_kv: int, embedding_size_kv: int, batch_size_q:int, sentence_length_q: int, embedding_size_q: int,reduced_emb: int, mask=None) -> None:
+        super(MultiHeadAttention, self).__init__()
+        assert (embedding_size_kv / heads == embedding_size_kv // heads), "The embedding size of the key and value matrices must be divisible by number of heads"
+        assert (embedding_size_q / heads == embedding_size_q // heads), "The embedding size of the querys must be divisble by the number of heads"
+        self.inputs_kv = inputs_kv
+        self.inputs_q = inputs_q
+        self.batch_size_kv = batch_size_kv
+        self.sentence_length_kv = sentence_length_kv # when placed into the single attention classes this will be divied by heads
+        self.embedding_size_kv = embedding_size_kv # when placed into the single attention classes this will be divided by heads
+        self.batch_size_q = batch_size_q
+        self.embedding_size_q = embedding_size_q
+        self.sentence_length_q = sentence_length_q
+        self.reduced_emb = reduced_emb #Remeber that reduced emb is not the split that happens with mha but one of the dims of the query, value, and key matrices that occur in the single attention layers
+        self.heads = heads
+        self.mask = mask
+        self.output_tensor = None
+    
+    def forward(self):
+        attention_list = [None for i in range(self.heads)]
+        list_of_input_kvs =torch.split(self.inputs_kv, self.heads, 2)
+        list_of_input_qs = torch.split(self.inputs_q, self.heads, 2)
+        outputs = [None for i in range(self.heads)]
+
+        for i in range(self.heads):
+            attention_list[i] = SingleAttention(list_of_input_kvs[i], list_of_input_qs[i], self.batch_size_kv, self.sentence_length_kv, self.embedding_size_kv // self.heads, self.batch_size_q, self.sentence_length_q, self.embedding_size_q // self.heads, self.reduced_emb, self.mask)
+
+        for i in range(self.heads):
+            outputs[i] = attention_list[i].forward()
+        
+        self.output_tensor = torch.concat(outputs, 2)
+
+        return self.output_tensor
+        
+
+
+
+        
+
+
+
 
 
         
