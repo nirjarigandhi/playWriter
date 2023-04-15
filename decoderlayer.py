@@ -39,7 +39,7 @@ class DecoderLayer(nn.Module):
         self.sentence_length_in = sentence_length_in
         self.final = None
     
-    def forward(self, encoder_tensor: torch.Tensor, encoder_batch_size: int, encoder_sequence_length: int, input_tensor: torch.Tensor, batch_in: int, sentence_length_in: int, mask):
+    def forward(self, encoder_tensor: torch.Tensor, encoder_batch_size: int, encoder_sequence_length: int, input_tensor: torch.Tensor, batch_in: int, sentence_length_in: int, mask=None):
         self.update(encoder_tensor, encoder_batch_size, encoder_sequence_length, input_tensor, batch_in, sentence_length_in)
 
         first_multi_out = self.first_multihead.forward(self.input_tensor, self.input_tensor, self.batch_in, self.sentence_length_in, self.batch_in, self.sentence_length_in, mask)
