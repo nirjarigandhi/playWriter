@@ -15,14 +15,14 @@ class DecoderLayer(nn.Module):
         self.batch_in = batch_in
         self.sentence_length_in = sentence_length_in
         self.embedding_length_in = embedding_length_in
-        self.reduced_emb_fist = reduced_emb_first
+        self.reduced_emb_first = reduced_emb_first
         self.second_heads = second_heads
         self.first_multihead = MultiHeadAttention(self.first_heads, self.input_tensor, self.input_tensor, self.batch_in, self.sentence_length_in, self.embedding_length_in, self.batch_in, self.sentence_length_in, self.batch_in, self.reduced_emb_first, mask=mask)
         self.second_multihead = None
         self.reduced_emb_second = reduced_emb_second
-        self.w01 = torch.rand((self.batch_in, self.reduced_emb_fist * self.first_heads, self.embedding_length_in), requires_grad=True)
+        self.w01 = torch.rand((1, self.reduced_emb_first * self.first_heads, self.embedding_length_in), requires_grad=True)
         torch.nn.init.xavier_normal_(self.w01)
-        self.w02 = torch.rand((self.batch_in, self.reduced_emb_second * self.second_heads, self.embedding_length_in), requires_grad=True) #notice that at every add and normalize the input must have the same shape as the output, which forces this second attention do to the same as well
+        self.w02 = torch.rand((1, self.reduced_emb_second * self.second_heads, self.embedding_length_in), requires_grad=True) #notice that at every add and normalize the input must have the same shape as the output, which forces this second attention do to the same as well
         torch.nn.init.xavier_normal_(self.w02)
 
         self.feed_forward = FeedForward(self.embedding_length_in, self.embedding_length_in * 2, self.embedding_length_in)
@@ -31,13 +31,13 @@ class DecoderLayer(nn.Module):
     
     def forward(self):
         first_multi_out = self.first_multihead.forward()
-        result1 = torch.matmul(first_multi_out * self.w01) #Now a tensor of dimension (self.batch_in, self.sentence_length_in, self.embedding_in)
+        result1 = torch.matmul(first_multi_out, self.w01) #Now a tensor of dimension (self.batch_in, self.sentence_length_in, self.embedding_in)
         result1 = result1 + self.input_tensor
         result1 = torch.nn.functional.normalize(result1, 2, 0) # Not sure if dim 0 is the right one to normalize on
 
         self.second_multihead = MultiHeadAttention(self.second_heads, self.encoder_tensor, result1, self.encoder_batch_size, self.encoder_seqence_length, self.encoder_embedding_size, self.batch_in, self.sentence_length_in, self.embedding_length_in, self.reduced_emb_second, None)
         second_multi_out = self.second_multihead.forward()
-        result2 = torch.matmul(second_multi_out, * self.w02)
+        result2 = torch.matmul(second_multi_out, self.w02)
         result2 = result2 + result1
         result2 = torch.nn.functional.normalize(result2, 2, 0) # This is of shape (batch_size, self.sentence_length_in, self.embedding_size_in)
 
