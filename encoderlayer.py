@@ -7,7 +7,9 @@ from feedforward import *
 
 
 class EncoderLayer(nn.Module):
-    """This is the encoder layer it combines the attention plus the feed forward layer of the neural network"""
+    """This is the encoder layer it combines the attention plus the feed forward layer of the neural network
+    Note that batch_size, sentence_length, and an embedding_size tensor goes into this class and a tensor of the same size
+    comes out"""
     def __init__(self, inputs: torch.Tensor, batch_size: int, sentence_length: int, embedding_size: int, number_of_layers: int, heads: int, reduced_emb: int, hidden_dim_ff: int) -> None:
         super(EncoderLayer, self).__init__()
         self.inputs = inputs
