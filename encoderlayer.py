@@ -10,13 +10,12 @@ class EncoderLayer(nn.Module):
     """This is the encoder layer it combines the attention plus the feed forward layer of the neural network
     Note that batch_size, sentence_length, and an embedding_size tensor goes into this class and a tensor of the same size
     comes out"""
-    def __init__(self, inputs: torch.Tensor, batch_size: int, sentence_length: int, embedding_size: int, number_of_layers: int, heads: int, reduced_emb: int, hidden_dim_ff: int) -> None:
+    def __init__(self, inputs: torch.Tensor, batch_size: int, sentence_length: int, embedding_size: int, heads: int, reduced_emb: int, hidden_dim_ff: int) -> None:
         super(EncoderLayer, self).__init__()
         self.inputs = inputs
         self.batch_size = batch_size
         self.sentence_length = sentence_length
         self.embedding_size = embedding_size
-        self.number_of_layers = number_of_layers
         self.heads = heads
         self.reduced_emb = reduced_emb
         self.multiattention = MultiHeadAttention(self.heads, self.inputs, self.inputs, self.batch_size, self.sentence_length, self.embedding_size, self.batch_size, self.sentence_length, self.embedding_size, self.reduced_emb)
