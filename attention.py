@@ -114,8 +114,8 @@ class MultiHeadAttention(nn.Module):
     
     def forward(self):
         attention_list = [None for i in range(self.heads)]
-        list_of_input_kvs =torch.split(self.inputs_kv, self.heads, 2)
-        list_of_input_qs = torch.split(self.inputs_q, self.heads, 2)
+        list_of_input_kvs =torch.split(self.inputs_kv, self.embedding_size_kv // self.heads, 2)
+        list_of_input_qs = torch.split(self.inputs_q, self.embedding_size_q // self.heads, 2)
         outputs = [None for i in range(self.heads)]
 
         for i in range(self.heads):
