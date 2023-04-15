@@ -5,15 +5,15 @@ import torch.autograd
 import math
 
 class PositionalEmbeddings(nn.Module):
-    def __init__(self, input: torch.Tensor, embedding_size: int, sentence_length: int, batch_size) -> None:
+    def __init__(self) -> None:
         """Input tensors must be of the form (batch, sentence_length, embedding_size)
         Note the variable i is a bijection from the naturals onto the positions into the vector_word embeddings"""
         super(PositionalEmbeddings, self).__init__()
-        self.inputs = input.clone() #(inputs of the form (batch, sentence_length, embedding_size))
-        self.embedding_size= embedding_size
+        self.inputs = None #(inputs of the form (batch, sentence_length, embedding_size))
+        self.embedding_size= None
         self.output = None # Outputs will later be of size (batch, sentence_length, embedding_size) for the sake of simplicity
-        self.sentence_length = sentence_length
-        self.batch_size = batch_size
+        self.sentence_length = None
+        self.batch_size = None
 
     
     def _sin_equation(self, pos: int, i: int):
@@ -59,8 +59,16 @@ class PositionalEmbeddings(nn.Module):
 
         return self.output
     
-    def add_posencoding(self) -> torch.Tensor:
+    def update(self, input: torch.Tensor, embedding_size: int, sentence_length: int, batch_size: int):
+        self.input = input
+        self.embedding_size = embedding_size
+        self.sentence_length = sentence_length
+        self.batch_size = batch_size
+        self.output = None
+    
+    def add_posencoding(self, input: torch.Tensor, embedding_size: int, sentence_length: int, batch_size: int) -> torch.Tensor:
         """As an alternative to the concatination process add the position vectors to the input"""
+        self.update(input, embedding_size, sentence_length, batch_size)
         result = self.inputs + self._posencoding_maker()
         self.output = result.clone()
 
