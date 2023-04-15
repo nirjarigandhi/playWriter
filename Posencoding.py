@@ -58,6 +58,14 @@ class PositionalEmbeddings(nn.Module):
         self.output = result.clone()
 
         return self.output
+    
+    def add_posencoding(self) -> torch.Tensor:
+        """As an alternative to the concatination process add the position vectors to the input"""
+        result = self.inputs + self._posencoding_maker()
+        self.output = result.clone()
+
+        return self.output # Note that only add_posencoding or concat_posencoding can be called at a time as they both overwrite the self.output value
+    
 
     
     
