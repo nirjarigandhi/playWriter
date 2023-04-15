@@ -10,7 +10,7 @@ class FeedForward(nn.Module):
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.hidden_dim = hidden_dim
-        self.first = nn.Linear(self.input_dim, self.output_dim, bias=True)
+        self.first = nn.Linear(self.input_dim, self.hidden_dim, bias=True)
         self.last = nn.Linear(self.hidden_dim, self.output_dim, bias=True)
         self.result = None
 
