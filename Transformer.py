@@ -7,7 +7,10 @@ class Transformer(nn.Module):
         """encoder_embedding - The embedding size of the data for the encoder and may or may not be the same as decoder embedding
            encoder_amount    - The amount of encoder layers to pass through
            encoder_head      - The amount of multihead attention to give the encoder attention layer
-           encoder_reduced_emb - The amount to reduce the q, v, k word representaions to from their original form"""
+           encoder_reduced_emb - The amount to reduce the q, v, k word representaions to from their original form
+           
+           Note that in this class the encoder_embedding and decoder_embedding share the same dimension despite being two seperate inputs
+           This class will throw an error if that is not the case"""
         super(Transformer, self).__init__()
         assert encoder_amount > 0, "The encoder layers need to be greater than 0"
         assert decoder_amount > 0, "The decoder layers need to be greater than 0"
@@ -21,6 +24,7 @@ class Transformer(nn.Module):
         self.input_one_hot_mutate = torch.rand((1, onehot_embedding_size, encoder_embedding), requires_grad=True)
         self.output_to_onehot = torch.rand((1, self.decoder_embedding, onehot_embedding_size), requires_grad=True)
         torch.nn.init.xavier_normal_(self.input_one_hot_mutate, 5)
+        torch.nn.init.xavier_normal_(self.output_to_onehot, 5)
         self.posencode = PositionalEmbeddings()
 
 
