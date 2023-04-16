@@ -130,7 +130,7 @@ class MultiHeadAttention(nn.Module):
         self.heads = heads
         self.mask = mask
         self.output_tensor = None
-        self.attention_list = [SingleAttention(self.embedding_size_kv // self.heads , self.embedding_size_q // self.heads , self.reduced_emb, self.mask) for i in range(self.heads)]
+        self.attention_list = nn.ModuleList([SingleAttention(self.embedding_size_kv // self.heads , self.embedding_size_q // self.heads , self.reduced_emb, self.mask) for i in range(self.heads)])
 
     def update(self, inputs_kv: torch.Tensor, inputs_q:torch.Tensor ,batch_size_kv: int, sentence_length_kv: int, batch_size_q:int, sentence_length_q: int, mask=None):
         self.inputs_kv = inputs_kv
