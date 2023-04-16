@@ -50,7 +50,7 @@ class Transformer(nn.Module):
         # Complete the decoder pass
         decoder_allpass_outputs = decoder_inputs
         for i in range(self.decoder_amount):
-            decoder_allpass_outputs = self.decoders[i].forward(encoder_allpass_outputs, encoder_allpass_outputs[0], encoder_allpass_outputs[1], decoder_allpass_outputs, tuple(decoder_allpass_outputs.shape)[0], tuple(decoder_allpass_outputs.shape)[1], None)
+            decoder_allpass_outputs = self.decoders[i].forward(encoder_allpass_outputs, tuple(encoder_allpass_outputs.shape)[0], tuple(encoder_allpass_outputs.shape)[1], decoder_allpass_outputs, tuple(decoder_allpass_outputs.shape)[0], tuple(decoder_allpass_outputs.shape)[1], None)
         
 
         result = torch.matmul(decoder_allpass_outputs, self.output_to_onehot)
