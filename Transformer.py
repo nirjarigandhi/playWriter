@@ -58,7 +58,7 @@ class Transformer(nn.Module):
         self.pre_logit = torch.softmax(result, 2)
 
         self.final = torch.argmax(self.pre_logit, 2)
-        self.final  = torch.nn.functional.one_hot(self.final, self.onehot_embedding_size)
+        self.final  = torch.Tensor(torch.nn.functional.one_hot(self.final, self.onehot_embedding_size))
 
         return self.final
         
