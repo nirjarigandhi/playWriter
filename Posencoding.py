@@ -60,7 +60,7 @@ class PositionalEmbeddings(nn.Module):
         return self.output
     
     def update(self, input: torch.Tensor, embedding_size: int, sentence_length: int, batch_size: int):
-        self.input = input
+        self.inputs = input
         self.embedding_size = embedding_size
         self.sentence_length = sentence_length
         self.batch_size = batch_size
