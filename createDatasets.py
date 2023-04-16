@@ -56,3 +56,22 @@ train_dataset = torch.Tensor(train_dataset)
 valid_dataset.pop()
 test_dataset = torch.Tensor(test_dataset)
 valid_dataset = torch.Tensor(valid_dataset)
+
+
+device = torch.device("cuda:0")
+print("Training", flush=True)
+x = train_dataset[1:30, :49, :].to(device)
+y = train_dataset[1:30, 49:, :].to(device)
+transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10085, None).to(device)
+loss_func = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(transformer.parameters(recurse=True))
+optimizer.zero_grad()
+for i in range(200):
+    results = transformer.forward(x, y)
+    
+    loss = loss_func(y.transpose(1, 2).float(), transformer.pre_logit.transpose(1, 2).float())
+    loss.retain_grad()
+    loss.backward()
+    print(loss.item(), flush=True)
+    optimizer.step()
+    optimizer.zero_grad()

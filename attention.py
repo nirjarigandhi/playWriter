@@ -24,11 +24,11 @@ class SingleAttention(nn.Module):
         self.sentence_length_q = None
         self.reduced_emb = reduced_emb
         self.mask = mask
-        self.query_matrix = torch.rand((1, self.embedding_size_q, self.reduced_emb), requires_grad=True) # The input vector is of size (seq, batch, emb) input * self.query_vector
+        self.query_matrix = torch.nn.Parameter(torch.rand((1, self.embedding_size_q, self.reduced_emb), requires_grad=True)) # The input vector is of size (seq, batch, emb) input * self.query_vector
         torch.nn.init.xavier_normal_(self.query_matrix, gain=3.5)
-        self.key_matrix = torch.rand((1, self.embedding_size_kv, self.reduced_emb), requires_grad=True)
+        self.key_matrix = torch.nn.Parameter(torch.rand((1, self.embedding_size_kv, self.reduced_emb), requires_grad=True))
         torch.nn.init.xavier_normal_(self.key_matrix, gain=3.5)
-        self.value_matrix = torch.rand((1, self.embedding_size_kv, self.reduced_emb), requires_grad=True)
+        self.value_matrix = torch.nn.Parameter(torch.rand((1, self.embedding_size_kv, self.reduced_emb), requires_grad=True))
         torch.nn.init.xavier_normal_(self.value_matrix, gain=3.5)
         self.querys = None
         self.keys = None

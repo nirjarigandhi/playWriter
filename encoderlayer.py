@@ -21,7 +21,7 @@ class EncoderLayer(nn.Module):
         self.hidden_dim_ff = hidden_dim_ff
         self.multiattention = MultiHeadAttention(self.heads, self.embedding_size, self.embedding_size, self.reduced_emb)
         self.feed_forward = FeedForward(self.embedding_size, hidden_dim_ff, self.embedding_size)
-        self.w0 = torch.rand((1, self.reduced_emb * self.heads, self.embedding_size), requires_grad=True) # remember that batch_kv = batch_q and in this instance all q,k,v tensors share the same dimensions. What comes out of the multi head attentions is (batch_kv, seq_q, reduced_emb * self.heads)
+        self.w0 = torch.nn.Parameter(torch.rand((1, self.reduced_emb * self.heads, self.embedding_size), requires_grad=True)) # remember that batch_kv = batch_q and in this instance all q,k,v tensors share the same dimensions. What comes out of the multi head attentions is (batch_kv, seq_q, reduced_emb * self.heads)
         torch.nn.init.xavier_normal_(self.w0)
         self.result = None
 

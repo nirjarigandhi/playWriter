@@ -21,8 +21,8 @@ class Transformer(nn.Module):
         self.onehot_embedding_size = onehot_embedding_size
         self.encoders = nn.ModuleList([EncoderLayer(encoder_embedding, encoder_head, encoder_reduced_emb, encoder_hidden_ff) for i in range(encoder_amount)])
         self.decoders = nn.ModuleList([DecoderLayer(encoder_embedding, decoder_embedding, decoder_head_first, decoder_reduced_emb_first, decoder_head_second, decoder_reduced_emb_second, decode_mask) for i in range(decoder_amount)])
-        self.input_one_hot_mutate = torch.rand((1, onehot_embedding_size, encoder_embedding), requires_grad=True)
-        self.output_to_onehot = torch.rand((1, self.decoder_embedding, onehot_embedding_size), requires_grad=True)
+        self.input_one_hot_mutate = torch.nn.Parameter(torch.rand((1, onehot_embedding_size, encoder_embedding), requires_grad=True))
+        self.output_to_onehot = torch.nn.Parameter(torch.rand((1, self.decoder_embedding, onehot_embedding_size), requires_grad=True))
         torch.nn.init.xavier_normal_(self.input_one_hot_mutate, 5)
         torch.nn.init.xavier_normal_(self.output_to_onehot, 5)
         self.posencode = PositionalEmbeddings()

@@ -21,9 +21,9 @@ class DecoderLayer(nn.Module):
         self.first_multihead = MultiHeadAttention(self.first_heads, self.embedding_length_in, self.embedding_length_in, self.reduced_emb_first, mask)
         self.second_multihead = MultiHeadAttention(self.second_heads, self.encoder_embedding_size, self.embedding_length_in, self.reduced_emb_second)
 
-        self.w01 = torch.rand((1, self.reduced_emb_first * self.first_heads, self.embedding_length_in), requires_grad=True)
+        self.w01 = torch.nn.Parameter(torch.rand((1, self.reduced_emb_first * self.first_heads, self.embedding_length_in), requires_grad=True))
         torch.nn.init.xavier_normal_(self.w01)
-        self.w02 = torch.rand((1, self.reduced_emb_second * self.second_heads, self.embedding_length_in), requires_grad=True) #notice that at every add and normalize the input must have the same shape as the output, which forces this second attention do to the same as well
+        self.w02 = torch.nn.Parameter(torch.rand((1, self.reduced_emb_second * self.second_heads, self.embedding_length_in), requires_grad=True)) #notice that at every add and normalize the input must have the same shape as the output, which forces this second attention do to the same as well
         torch.nn.init.xavier_normal_(self.w02)
 
         self.feed_forward = FeedForward(self.embedding_length_in, self.embedding_length_in * 2, self.embedding_length_in)
