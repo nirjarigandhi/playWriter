@@ -3,7 +3,7 @@ from decoderlayer import *
 from Posencoding import *
 
 class Transformer(nn.Module):
-    def __init__(self, encoder_amount: int, encoder_head: int, encoder_embedding: int, encoder_reduced_emb: int, encoder_hidden_ff: int, decoder_amount: int, decoder_head_first: int, decoder_head_second: int, decoder_embedding: int, decoder_reduced_emb_first: int, decoder_reduced_emb_second: int, onehot_embedding_size: int, onehot , decode_mask = None,) -> None:
+    def __init__(self, encoder_amount: int, encoder_head: int, encoder_embedding: int, encoder_reduced_emb: int, encoder_hidden_ff: int, decoder_amount: int, decoder_head_first: int, decoder_head_second: int, decoder_embedding: int, decoder_reduced_emb_first: int, decoder_reduced_emb_second: int, onehot_embedding_size: int, decode_mask = None) -> None:
         """encoder_embedding - The embedding size of the data for the encoder and may or may not be the same as decoder embedding
            encoder_amount    - The amount of encoder layers to pass through
            encoder_head      - The amount of multihead attention to give the encoder attention layer
