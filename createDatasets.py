@@ -75,8 +75,7 @@ for i in range(200):
     results = transformer.forward(x, de_in.to(device))
     print(f'Shape of output {results.shape}, shape of y {torch.argmax(y, 2).flatten().shape}', flush=True)
 
-    # loss = loss_func(y.reshape((y.shape[0] * y.shape[1], y.shape[2])), transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])))
-    loss = loss_func(, torch.argmax(results, 2).flatten().float())
+    loss = loss_func(y.reshape((y.shape[0] * y.shape[1], y.shape[2])), transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float())
     loss.retain_grad()
     loss.backward()
     print(loss.item())
