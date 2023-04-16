@@ -62,6 +62,7 @@ test_dataset = torch.Tensor(test_dataset)
 valid_dataset = torch.Tensor(valid_dataset)
 
 
+
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 print("Training", flush=True)
 x = train_dataset[0:50, :49, :].to(device)
@@ -82,3 +83,56 @@ for i in range(2000):
     print(loss.item())
     optimizer.step()
     optimizer.zero_grad()
+
+def split_dataset(dataset, batch_size):
+    # Split the dataset into batches
+    # Return the batches
+    batches = []
+    for i in range(0, len(dataset), batch_size):
+        batches.append(dataset[i:i+batch_size])
+    return batches
+
+def split_trainDataset(dataset, batch_size):
+    # use teaching forcing to split the dataset into batches
+    # Return the batches
+    result = []
+    for i in range(1, 51):
+        grouped_items = []
+        for lst in dataset:
+            grouped_items.extend(lst[:i])
+        result.append(grouped_items.T)
+
+
+def train(model, train_dataset, valid_dataset, epochs=100, batch_size=50, learning_rate=0.001, device='cpu'):
+    # Train the model
+    # Create the optimizer
+    # Create the loss function
+    # Train the model
+    # Return the model
+    optimizer = torch.optim.Adam(model.parameters(recurse=True))
+    loss_fn = nn.CrossEntropyLoss()
+    for epoch in range(epochs):
+        # Train
+        model.train()
+        for batch in train_dataset:
+            optimizer.zero_grad()
+            word = train_dataset
+            for i in range(batch_size):
+                word = train_dataset[:,0:i,:]
+            de_in = torch.nn.functional.one_hot(torch.Tensor([unique_words.index(word)]).long(), 10086).unsqueeze(0) * torch.ones((batch_size, 1, 10086))
+
+            output = model(batch)
+
+            loss = loss_fn(output, batch)
+            loss.backward()
+            optimizer.step()
+        # Validate
+        model.eval()
+        with torch.no_grad():
+            for batch in valid_dataset:
+                output = model(batch)
+                loss = loss_fn(output, batch)
+                print(loss)
+    return model
+
+transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10086, None).to(device)
