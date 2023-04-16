@@ -1,3 +1,4 @@
+from Transformer import *
 
 def createDataset(filenames, dataset_size=50):
     
@@ -50,3 +51,8 @@ train_dataset = dataset1[:train_len]
 test_len = int(len(dataset1) * 0.1)
 test_dataset = dataset1[train_len:test_len+train_len]
 valid_dataset = dataset1[test_len+train_len:]
+
+train_dataset = torch.Tensor(train_dataset)
+valid_dataset.pop()
+test_dataset = torch.Tensor(test_dataset)
+valid_dataset = torch.Tensor(valid_dataset)
