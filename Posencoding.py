@@ -14,6 +14,7 @@ class PositionalEmbeddings(nn.Module):
         self.output = None # Outputs will later be of size (batch, sentence_length, embedding_size) for the sake of simplicity
         self.sentence_length = None
         self.batch_size = None
+        self.device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     
     def _sin_equation(self, pos: int, i: int):
@@ -69,7 +70,7 @@ class PositionalEmbeddings(nn.Module):
     def add_posencoding(self, input: torch.Tensor, embedding_size: int, sentence_length: int, batch_size: int) -> torch.Tensor:
         """As an alternative to the concatination process add the position vectors to the input"""
         self.update(input, embedding_size, sentence_length, batch_size)
-        result = self.inputs + self._posencoding_maker().to(torch.device("cuda:0"))
+        result = self.inputs + self._posencoding_maker().to(self.device)
         self.output = result.clone()
 
         return self.output # Note that only add_posencoding or concat_posencoding can be called at a time as they both overwrite the self.output value

@@ -59,7 +59,7 @@ class Transformer(nn.Module):
 
         log_soft = torch.nn.LogSoftmax(2)
         result = log_soft(result)
-
+        
         self.final = torch.argmax(result, 2)
         self.final  = torch.Tensor(torch.nn.functional.one_hot(self.final, self.onehot_embedding_size))
 
