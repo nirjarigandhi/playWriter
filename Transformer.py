@@ -14,9 +14,12 @@ class Transformer(nn.Module):
         self.encoder_amount = encoder_amount
         self.encoder_embedding = encoder_embedding
         self.decoder_amount = decoder_amount
+        self.decoder_embedding = decoder_embedding
+        self.onehot_embedding_size = onehot_embedding_size
         self.encoders = [EncoderLayer(encoder_embedding, encoder_head, encoder_reduced_emb, encoder_hidden_ff) for i in range(encoder_amount)]
         self.decoders = [DecoderLayer(encoder_embedding, decoder_embedding, decoder_head_first, decoder_reduced_emb_first, decoder_head_second, decoder_reduced_emb_second, decode_mask) for i in range(decoder_amount)]
         self.input_one_hot_mutate = torch.rand((1, onehot_embedding_size, encoder_embedding), requires_grad=True)
+        self.output_to_onehot = torch.rand((1, self.decoder_embedding, onehot_embedding_size), requires_grad=True)
         torch.nn.init.xavier_normal_(self.input_one_hot_mutate, 5)
         self.posencode = PositionalEmbeddings()
 
@@ -26,6 +29,7 @@ class Transformer(nn.Module):
         encoder_inputs = torch.matmul(encoder_onehot_inputs_raw_tensor, self.input_one_hot_mutate)
         encoder_inputs = self.posencode.add_posencoding(encoder_inputs, self.encoder_embedding, tuple(encoder_inputs.shape)[1], tuple(encoder_inputs.shape)[0])
         # Convert both the onehot vectors fed to the network from both the encoder and decoder
+        assert self.encoder_embedding == self.decoder_embedding, "The embeddings are not equal"
         decoder_inputs = torch.matmul(decoder_onehot_inputs_raw_tensor, self.input_one_hot_mutate)
         decoder_inputs = self.posencode.add_posencoding(decoder_inputs, self.encoder_embedding, tuple(decoder_inputs.shape)[1], tuple(decoder_inputs.shape)[0])
 
@@ -39,9 +43,23 @@ class Transformer(nn.Module):
 
         
 
+        # Complete the decoder pass
         decoder_allpass_outputs = decoder_inputs
         for i in range(self.decoder_amount):
             decoder_allpass_outputs = self.decoders[i].forward(encoder_allpass_outputs, encoder_allpass_outputs[0], encoder_allpass_outputs[1], decoder_allpass_outputs, tuple(decoder_allpass_outputs)[0], tuple(decoder_allpass_outputs)[1], None)
+        
+
+        result = torch.matmul(decoder_allpass_outputs, self.output_to_onehot)
+
+        self.pre_logit = torch.softmax(result, 2)
+
+        self.final = torch.argmax(self.pre_logit, 2)
+        self.final  = torch.nn.functional.one_hot(self.final, self.onehot_embedding_size)
+
+        return self.final
+        
+
+        
 
         
         
