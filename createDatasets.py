@@ -65,74 +65,76 @@ valid_dataset = torch.Tensor(valid_dataset)
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 print("Training", flush=True)
-x = train_dataset[0:50, :49, :].to(device)
-y = train_dataset[0:50, 49:, :].to(device)
+# x = train_dataset[0:50, :49, :].to(device)
+# y = train_dataset[0:50, 49:, :].to(device)
 transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10086, None).to(device)
 loss_func = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(transformer.parameters(recurse=True))
 optimizer.zero_grad()
-for i in range(2000):
-    de_in = torch.nn.functional.one_hot(torch.Tensor([start_token]).long(), 10086).unsqueeze(0) * torch.ones((50, 1, 10086)) #Make a tensor of shape (batch_size, 1, 10086)
-    results = transformer.forward(x, de_in.to(device))
-    #print(f'Shape of output {(transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()).shape}, shape of y {torch.argmax(y.squeeze(1), 1).shape} ', flush=True)
+# for i in range(2000):
+#     de_in = torch.nn.functional.one_hot(torch.Tensor([start_token]).long(), 10086).unsqueeze(0) * torch.ones((50, 1, 10086)) #Make a tensor of shape (batch_size, 1, 10086)
+#     results = transformer.forward(x, de_in.to(device))
+#     #print(f'Shape of output {(transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()).shape}, shape of y {torch.argmax(y.squeeze(1), 1).shape} ', flush=True)
 
-    #loss = loss_func(torch.argmax(y.squeeze(1), 1).float(), (transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()))
-    loss = loss_func((transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()), torch.argmax(y.squeeze(1), 1).long() )
-    loss.retain_grad()
-    loss.backward()
-    print(loss.item())
-    optimizer.step()
-    optimizer.zero_grad()
+#     #loss = loss_func(torch.argmax(y.squeeze(1), 1).float(), (transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()))
+#     loss = loss_func((transformer.pre_logit.reshape((transformer.pre_logit.shape[0] * transformer.pre_logit.shape[1], transformer.pre_logit.shape[2])).float()), torch.argmax(y.squeeze(1), 1).long() )
+#     loss.retain_grad()
+#     loss.backward()
+#     print(loss.item())
+#     optimizer.step()
+#     optimizer.zero_grad()
+
+
+
+def shuffle_dataset(dataset: torch.Tensor):
+    """Shuffle the data set batch wise when in the format (batch, sequence, embedding)"""
+    batch_size = dataset.shape[0]
+
+    return dataset[torch.randperm(batch_size)]
+
 
 def split_dataset(dataset, batch_size):
     # Split the dataset into batches
     # Return the batches
-    batches = []
-    for i in range(0, len(dataset), batch_size):
-        batches.append(dataset[i:i+batch_size])
-    return batches
+    return torch.split(dataset, batch_size, 0)
 
-def split_trainDataset(dataset, batch_size):
+def split_batch_encoder_and_answers(batch):
     # use teaching forcing to split the dataset into batches
     # Return the batches
-    result = []
-    for i in range(1, 51):
-        grouped_items = []
-        for lst in dataset:
-            grouped_items.extend(lst[:i])
-        result.append(grouped_items.T)
+    batch_encoder = []
+    batch_decoder = []
+    for i in range(1, batch.shape[1]):
+        batch_encoder.append(batch[:,0:i,:])
+        batch_decoder.append(batch[:,i,:].unsqueeze(1))
+    
+    return batch_encoder, batch_decoder
 
+epoch = 10
 
-def train(model, train_dataset, valid_dataset, epochs=100, batch_size=50, learning_rate=0.001, device='cpu'):
-    # Train the model
-    # Create the optimizer
-    # Create the loss function
-    # Train the model
-    # Return the model
+def train(epoch: int, dataset: torch.Tensor, batch_size: int, model, device, start_token: int, raw_embedding_size: int):
+    loss_func = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(recurse=True))
-    loss_fn = nn.CrossEntropyLoss()
-    for epoch in range(epochs):
-        # Train
-        model.train()
-        for batch in train_dataset:
-            optimizer.zero_grad()
-            word = train_dataset
-            for i in range(batch_size):
-                word = train_dataset[:,0:i,:]
-            de_in = torch.nn.functional.one_hot(torch.Tensor([unique_words.index(word)]).long(), 10086).unsqueeze(0) * torch.ones((batch_size, 1, 10086))
+    de_in = torch.nn.functional.one_hot(torch.Tensor([start_token]).long(), raw_embedding_size).unsqueeze(0) * torch.ones((batch_size, 1, raw_embedding_size)) #Make a tensor of shape (batch_size, 1, 10086) start token for the decoder
+    de_in = de_in.to(device)
+    optimizer.zero_grad()
+    list_of_loss = []
+    for i in range(epoch):
+        data = shuffle_dataset(dataset).to(device) #shuffle the data
+        batches = list(split_dataset(data, batch_size)) # returns a list of tensor objects [batch_size, sentence_length, embedding_size]
+        batches.pop() #remove the last uneven one
+        for batch in batches:
+            batch_encoder, batch_answers = split_batch_encoder_and_answers(batch)
+            for i in range(len(batch_encoder)):
+                results = model.forward(batch_encoder[i], de_in)
+                loss = loss_func((model.pre_logit.reshape((model.pre_logit.shape[0] * model.pre_logit.shape[1], model.pre_logit.shape[2])).float()), torch.argmax(batch_answers[i].squeeze(1), 1).long() )
+                loss.retain_grad()
+                loss.backward()
+                print(loss.item())
+                optimizer.step()
+                optimizer.zero_grad()
+    
 
-            output = model(batch)
+    return list_of_loss
 
-            loss = loss_fn(output, batch)
-            loss.backward()
-            optimizer.step()
-        # Validate
-        model.eval()
-        with torch.no_grad():
-            for batch in valid_dataset:
-                output = model(batch)
-                loss = loss_fn(output, batch)
-                print(loss)
-    return model
 
-transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10086, None).to(device)
+
