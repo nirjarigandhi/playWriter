@@ -1,5 +1,9 @@
 from Transformer import *
 
+
+torch.cuda.empty_cache()
+import gc
+
 def createDataset(filenames, dataset_size=50):
     
         # Create a dataset from a file
@@ -113,7 +117,7 @@ epoch = 10
 
 def train(epoch: int, dataset: torch.Tensor, batch_size: int, model, device, start_token: int, raw_embedding_size: int):
     loss_func = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(recurse=True))
+    optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=0.0001)
     de_in = torch.nn.functional.one_hot(torch.Tensor([start_token]).long(), raw_embedding_size).unsqueeze(0) * torch.ones((batch_size, 1, raw_embedding_size)) #Make a tensor of shape (batch_size, 1, 10086) start token for the decoder
     de_in = de_in.to(device)
     optimizer.zero_grad()
@@ -132,9 +136,11 @@ def train(epoch: int, dataset: torch.Tensor, batch_size: int, model, device, sta
                 print(loss.item())
                 optimizer.step()
                 optimizer.zero_grad()
+        
+        del data, batches, batch_encoder, batch_answers
+        gc.collect()
+        torch.cuda.empty_cache()
+
     
 
     return list_of_loss
-
-
-
