@@ -1,7 +1,7 @@
 from Decode_only_transformer import *
 
-
-
+from random import shuffle
+from matplotlib import pyplot as plt
 import gc
 
 print(f'{torch.cuda.is_available()}')
@@ -56,6 +56,8 @@ dataset1, unique_words = createDataset(['play1.txt', 'play2.txt'])
 unique_words = list(unique_words)
 start_token = unique_words.index("<start>")
 dataset1 = createOneHotDataset(dataset1, unique_words)
+dataset1.pop()
+shuffle(dataset1)
 train_len = int(len(dataset1) * 0.8)
 train_dataset = dataset1[:train_len]
 test_len = int(len(dataset1) * 0.1)
@@ -63,7 +65,6 @@ test_dataset = dataset1[train_len:test_len+train_len]
 valid_dataset = dataset1[test_len+train_len:]
 
 train_dataset = torch.Tensor(train_dataset)
-valid_dataset.pop()
 test_dataset = torch.Tensor(test_dataset)
 valid_dataset = torch.Tensor(valid_dataset)
 
@@ -126,11 +127,15 @@ def learn(x):
 
 
 
-def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch.Tensor, learn: callable, device, model: DecodeTransformer):
+def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch.Tensor, learn: callable, device, model: DecodeTransformer, offset: int = 0, list_of_accuracy = [], list_of_vaccuracy =[], list_of_epoch=[], list_of_loss =[]):
     loss_func = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
-    for i in range(epoch):
+    list_of_accuracy = list_of_accuracy
+    list_of_vaccuracy = list_of_vaccuracy
+    list_of_epoch = list_of_epoch
+    list_of_loss = list_of_loss
+    for i in range(offset, epoch + offset):
         shuffle = shuffle_dataset(train_data)
 
         batch_elements= split_dataset(shuffle, batches)
@@ -149,10 +154,48 @@ def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch
             del train_answers
             torch.cuda.empty_cache()
             print(f"The loss is {loss.item()}")
-        torch.save({'epoch': i, 'model_state_dict': model.state_dict(), 'scheduler_state_dict': scheduler.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss.item()}, f'/home/vijay/Documents/413/playWriter/checkpoint/things_({i}).txt')
+        
+        if i % 10 == 0:
+            tacc = get_accuracy(model, train_data, device)
+            vacc = get_accuracy(model, valid_dataset, device)
+            list_of_accuracy.append(tacc)
+            list_of_vaccuracy.append(vacc)
+            list_of_epoch.append(i)
+            list_of_loss.append(loss.item())
+            torch.save({"epoch": list_of_epoch, "train_acc": list_of_accuracy, "valid_acc": list_of_vaccuracy, "list_of_loss": list_of_loss}, f'/home/vijay/Documents/413/playWriter/training_saves/saves_({i}).txt')
+            print(f"The loss is {loss.item()},  [Train Acc {tacc}%], [Valid Acc {vacc}%]")
+
+        if i % 100 == 0:
+            torch.save({'epoch': i, 'model_state_dict': model.state_dict(), 'scheduler_state_dict': scheduler.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss.item()}, f'/home/vijay/Documents/413/playWriter/checkpoint/states_({i}).txt')
+    
+    return list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch
+
+
+def get_accuracy(model: DecodeTransformer, train_dataset: torch.Tensor, device):
+    set = train_dataset.clone()
+    tests, answers = split_batch_answers(set, 50)
+    tests = tests.to(device)
+    argmax_answers = torch.argmax(answers, 2).flatten()
+    argmax_answers = argmax_answers.to(device)
+    results = model.forward(tests)
+    argmax_results = torch.argmax(results, 2).flatten()
+
+    hold = list(argmax_answers == argmax_results)
+
+    del tests
+    del argmax_answers
+    del results
+    del argmax_results
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    return (hold.count(True) / len(hold)) * 100
+
+
 
     
-train(20, 50, train_dataset, valid_dataset, learn, device, model)
+list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch = train(301, 50, train_dataset, valid_dataset, learn, device, model)
+
 
 
 
