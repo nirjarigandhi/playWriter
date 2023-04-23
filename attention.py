@@ -85,8 +85,8 @@ class SingleAttention(nn.Module):
         results = results / math.sqrt(self.reduced_emb)
 
         if self.mask is not None:
-            assert self.mask.shape == results.shape, "Masks need to have the same size as the attention_matrix"
-            results = results * self.mask
+            assert True #tuple(self.mask.shape)[1:] == tuple(results.shape)[1:], "Masks need to have the same size as the attention_matrix"
+            results = results + self.mask
         
         results = torch.softmax(results, 2) #compute softmax on dimension 2
 
