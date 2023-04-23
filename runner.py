@@ -18,7 +18,7 @@ device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("
 # x = train_dataset[0:50, :49, :].to(device)
 # y = train_dataset[0:50, 49:, :].to(device)
 # transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10086, None).to(device)
-loss_func = nn.CrossEntropyLoss()
+# loss_func = nn.CrossEntropyLoss()
 
 def shuffle_dataset(dataset: torch.Tensor):
     """Shuffle the data set batch wise when in the format (batch, sequence, embedding)"""
