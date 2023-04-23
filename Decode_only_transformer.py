@@ -23,9 +23,9 @@ class DecodeTransformer(nn.Module):
         for i in range(self.num_layers):
             results = self.list_of_decoders[i].forward(new_inputs)
         
-        self.pre_softmax = torch.matmul(results, self.transform_outputs)
+        self.pre_logits = torch.matmul(results, self.transform_outputs)
         softmax = torch.nn.LogSoftmax(2)
-        almost = softmax(self.pre_softmax)
+        almost = softmax(self.pre_logits)
 
         return almost
         
