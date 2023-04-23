@@ -101,28 +101,62 @@ mask = mask.to(device)
 model = DecodeTransformer(3, 8, 10086, 768, 70, 1000, mask).to(device)
 
 
-y = split_dataset(train_dataset, 50)
-first = y[0]
-tests, answers = split_batch_answers(first, 50)
-tests = tests.to(device)
-answers = answers.to(device)
+# y = split_dataset(train_dataset, 50)
+# first = y[0]
+# tests, answers = split_batch_answers(first, 50)
+# tests = tests.to(device)
+# answers = answers.to(device)
 def learn(x):
   return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
 
-loss_func = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
-scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
+# loss_func = nn.CrossEntropyLoss()
+# optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
+# scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
 
-for i in range(10000):
-    results = model.forward(tests)
-    pre_logits= model.pre_softmax
-    loss = loss_func(pre_logits.reshape((pre_logits.shape[0] * pre_logits.shape[1], pre_logits.shape[2])).float(), torch.argmax(answers, 2).flatten())
-    #loss.retain_grad()
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad()
-    scheduler.step()
-    print(f'the loss is {loss.item()}')
+# for i in range(10000):
+#     results = model.forward(tests)
+#     pre_logits= model.pre_softmax
+#     loss = loss_func(pre_logits.reshape((pre_logits.shape[0] * pre_logits.shape[1], pre_logits.shape[2])).float(), torch.argmax(answers, 2).flatten())
+#     #loss.retain_grad()
+#     loss.backward()
+#     optimizer.step()
+#     optimizer.zero_grad()
+#     scheduler.step()
+#     print(f'the loss is {loss.item()}')
+
+
+
+def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch.Tensor, learn: callable, device, model: DecodeTransformer):
+    loss_func = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
+    for i in range(epoch):
+        shuffle = shuffle_dataset(train_data)
+
+        batch_elements= split_dataset(shuffle, batches)
+        for j in range(len(batch_elements)):
+            train_test, train_answers = split_batch_answers(batch_elements[j], 50)
+            train_test = train_test.to(device)
+            train_answers = train_answers.to(device)
+            results = model.forward(train_test)
+            loss = loss_func(model.pre_logits.reshape((model.pre_logits.shape[0] * model.pre_logits.shape[1], model.pre_logits.shape[2])).float(), torch.argmax(train_answers, 2).flatten())
+            #loss.retain_grad()
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            scheduler.step()
+            del train_test
+            del train_answers
+            torch.cuda.empty_cache()
+            print(f"The loss is {loss.item()}")
+        torch.save({'epoch': i, 'model_state_dict': model.state_dict(), 'scheduler_state_dict': scheduler.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss.item()}, f'/home/vijay/Documents/413/playWriter/checkpoint/things_({i}).txt')
+
+    
+train(20, 50, train_dataset, valid_dataset, learn, device, model)
+
+
+
+
 
 
     
