@@ -7,7 +7,7 @@ import gc
 print(f'{torch.cuda.is_available()}')
 torch.cuda.empty_cache()
 
-data_dictionary = torch.load('/home/vijay/Documents/413/playWriter/dataset/data.txt')
+data_dictionary = torch.load('dataset/data.txt')
 
 train_dataset = torch.Tensor(data_dictionary['train'])
 test_dataset = torch.Tensor(data_dictionary['test'])
@@ -115,11 +115,11 @@ def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch
             list_of_vaccuracy.append(vacc)
             list_of_epoch.append(i)
             list_of_loss.append(loss.item())
-            torch.save({"epoch": list_of_epoch, "train_acc": list_of_accuracy, "valid_acc": list_of_vaccuracy, "list_of_loss": list_of_loss}, f'/home/vijay/Documents/413/playWriter/training_saves/saves_({i}).txt')
+            torch.save({"epoch": list_of_epoch, "train_acc": list_of_accuracy, "valid_acc": list_of_vaccuracy, "list_of_loss": list_of_loss}, f'training_saves/saves_({i}).txt')
             print(f"The loss is {loss.item()},  [Train Acc {tacc}%], [Valid Acc {vacc}%]")
 
         if i % 100 == 0:
-            torch.save({'epoch': i, 'model_state_dict': model.state_dict(), 'scheduler_state_dict': scheduler.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss.item()}, f'/home/vijay/Documents/413/playWriter/checkpoint/states_({i}).txt')
+            torch.save({'epoch': i, 'model_state_dict': model.state_dict(), 'scheduler_state_dict': scheduler.state_dict(), 'optimizer_state_dict': optimizer.state_dict(), 'loss': loss.item()}, f'checkpoint/states_({i}).txt')
     
     return list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch
 
@@ -144,6 +144,8 @@ def get_accuracy(model: DecodeTransformer, train_dataset: torch.Tensor, device):
 
     return (hold.count(True) / len(hold)) * 100
 
+
+
 # *********Note only one of the two chunks below should be uncommented*********
 
 
@@ -151,21 +153,37 @@ def get_accuracy(model: DecodeTransformer, train_dataset: torch.Tensor, device):
 
 # Uncomment this chunk to start training from a specific file in which training has already occured 
 
-states_checkpoint = torch.load('/home/vijay/Documents/413/playWriter/checkpoint/states_(600).txt')
-training_saves_checkpoint = torch.load('/home/vijay/Documents/413/playWriter/training_saves/saves_(600).txt')
-list_of_accuracy = training_saves_checkpoint['train_acc']
-list_of_vaccuracy = training_saves_checkpoint['valid_acc']
-list_of_epoch = training_saves_checkpoint['epoch']
-list_of_loss = training_saves_checkpoint['list_of_loss']
-train(401, 50, train_dataset, valid_dataset, learn, device, model, 601, list_of_accuracy, list_of_vaccuracy, list_of_epoch, list_of_loss, states_checkpoint)
+# states_checkpoint = torch.load('checkpoint/states_(1000).txt')
+# training_saves_checkpoint = torch.load('training_saves/saves_(1000).txt')
+# list_of_accuracy = training_saves_checkpoint['train_acc']
+# list_of_vaccuracy = training_saves_checkpoint['valid_acc']
+# list_of_epoch = training_saves_checkpoint['epoch']
+# list_of_loss = training_saves_checkpoint['list_of_loss']
+# train(401, 50, train_dataset, valid_dataset, learn, device, model, 601, list_of_accuracy, list_of_vaccuracy, list_of_epoch, list_of_loss, states_checkpoint)
 
 
 
 # Uncomment this line to start training from scratch
 
-# list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch = train(401, 50, train_dataset, valid_dataset, learn, device, model)
+list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch = train(401, 50, train_dataset, valid_dataset, learn, device, model)
 
 
+
+
+
+
+def graph(x1: list, y1 :list, y2: list, title: str, x_axis_label: str, y_axis_label: str) :
+    plt.plot(x1, y1, y2)
+    plt.title(title)
+    plt.xlabel(x_axis_label)
+    plt.ylabel(y_axis_label)
+    
+    plt.cool()
+    plt.legend(["Training", "Validation"])
+    plt.figtext(1,1, "Figure")
+    plt.axes((0, 1000, 0, 100))
+    plt.savefig('images/trainingcurve.png')
+    plt.clf()
 
 
 
