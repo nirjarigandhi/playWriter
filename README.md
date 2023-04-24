@@ -26,7 +26,7 @@ We used a total of 3 of these layers in Blue that fed into eachother which is in
 ## Model Parameters
 First in the input embeddings we used a learnable matrix of size (10086, 768) to reduce the dimensionality. Note that there are 3 decoding layers, but the following describes the trainable matricies in 1 layer. In each of the 8 multihead attention layers there were 3 learnable matricies of size (1, 70, 768/8) (70 was the reduced embedding size after the embedding dimension split of 768/8). One for the Query, Key, and Value maricies. After the multihead attention there was a matrix of size (70 * 8, 768) to convert the reduced embeddings back to the original size (50, 768). In the feedforward layer there were probably two matricies used one of (768, 1000) and (1000, 768).
 
-After the 3 decoding layers there was one matrix of (786, 10086) used to bring the outputs back to the original embedding size.
+After the 3 decoding layers there was one matrix of (768, 10086) used to bring the outputs back to the original embedding size.
 
 In total after using pytorch to count, there are 40852992 trainable parameters
 
