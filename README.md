@@ -109,7 +109,7 @@ The tasks will be divided as follows:
 - Check accuracy of model and adjust parameters according to results: Vijay
 - Create prediction function to predict next line in play: Nirjari
 
-Note that a lot of commits were from Vijay's account since we often worked collaboratively through VS code share and Discord since I had the GPU.
+Note that a lot of commits were from Vijay's account since we often worked collaboratively through VS code share and Discord since I (Vijay) had the GPU.
 Also note that Vijay's account had two names associated with commits, AvroAaron and VijayNandlal, as I worked from my Fedora Machine and Pop OS Machine and did not realize I had configured git differently for my two github accounts. Both of those accounts are Vijay's (mine) 
 
 
