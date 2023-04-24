@@ -69,8 +69,9 @@ Initially we were using a the model we created in *Transformer.py* which consist
 
 We also created this function to pass to the scheduler that would supply counter value and multiply the output by the initial learnign rate (1) the values involved in this computation were also taken from the Attention is All You Need paper we would have changed the embedding size from 512 to 768 but 512 also seemed to work well and given all the trouble we had training we decided to leave it alone:
 
-``` def learn(x):
-        return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
+```
+def learn(x):
+    return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
 ```
 
 
