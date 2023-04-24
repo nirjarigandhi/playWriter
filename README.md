@@ -32,10 +32,14 @@ In total after using pytorch to count, there are 40852992 trainable parameters
 
 Using Pytorch to count:
 
-`from Decode_only_transformer import *
+```
+{
+from Decode_only_transformer import *
 model = DecodeTransformer(3, 8, 10086, 768, 70, 1000, None)
 parameters = list(model.parameters())
 count = 0
 for a in parameters:
     count += len(list(a.flatten()))
-print(count)`
+print(count)
+}
+````
