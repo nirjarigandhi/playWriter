@@ -62,5 +62,17 @@ Once the data is cleaned, the data would be split into training, testing and val
 
 This is a picture of our training curve. As you can see the validation accuracy was not signifigantly higher than 1%. We trained this model using the training set of approximately 888 sentences of 50 words each for 1000 epochs. We used the Adam optimizer and grouped our data into randomly shuffled batches with each epoch. We also implemented a scheduler to provide a warmup for the learning rate as the authors of the Attention Is All You Need Paper did as well. The validation accuracy is cut off on the graph despite being recorded in the same frequency as the training accuracy. 
 
+## Hyperparameter Tuning
+Initially we were using a the model we created in *Transformer.py* which consisted of both an encoder and decoder model. Originally we were planning to use 6 encoder layers and 6 decoder layers, while feeding 30 words into the encoder and having the decoder autoregressively predict the last 20 using teacher forcing. Even on the training set the accuracy was still very low despite training for over 12 hours. After getting some help from the professors we decided to implement our model from scratch in the form of GPT-2 using a multiple decoding layers with one multihead attention layer and no encoding layer. We used 3 decoding layers to reduce the amount of trainabe parameters as these made training longer and harder. To avoid the 12 hour training problem we were having before we decided to use a scheduler from the pytorch libraries that allowed us to replicate the learning rate warm up shown in the paper Attention is All You Need. Also from this paper, we used hyper parameters in our optimizer such as the beta1 and beta2 as well as the epsilon coefficients:
+
+```torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))```
+
+We also created this function to pass to the scheduler that would supply counter value and multiply the output by the initial learnign rate (1) the values involved in this computation were also taken from the Attention is All You Need paper we would have changed the embedding size from 512 to 768 but 512 also seemed to work well and given all the trouble we had training we decided to leave it alone:
+
+``` def learn(x):
+        return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
+```
+
+
 
 
