@@ -72,10 +72,18 @@ def learn(x):
 
 
 
-def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch.Tensor, learn: callable, device, model: DecodeTransformer, offset: int = 0, list_of_accuracy = [], list_of_vaccuracy =[], list_of_epoch=[], list_of_loss =[]):
+def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch.Tensor, learn: callable, device, model: DecodeTransformer, offset: int = 0, list_of_accuracy = [], list_of_vaccuracy =[], list_of_epoch=[], list_of_loss =[], checkpoint=None):
+    
     loss_func = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
+    
+    if checkpoint is not None:
+        model.load_state_dict(checkpoint['model_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+
     list_of_accuracy = list_of_accuracy
     list_of_vaccuracy = list_of_vaccuracy
     list_of_epoch = list_of_epoch
@@ -118,7 +126,7 @@ def train(epoch: int, batches: int , train_data: torch.Tensor, valid_data: torch
 
 def get_accuracy(model: DecodeTransformer, train_dataset: torch.Tensor, device):
     set = train_dataset.clone()
-    tests, answers = split_batch_answers(set, 50)
+    tests, answers = split_batch_answers(set, 50) #Batch size is fixed at 50
     tests = tests.to(device)
     argmax_answers = torch.argmax(answers, 2).flatten()
     argmax_answers = argmax_answers.to(device)
@@ -131,15 +139,33 @@ def get_accuracy(model: DecodeTransformer, train_dataset: torch.Tensor, device):
     del argmax_answers
     del results
     del argmax_results
-    gc.collect()
+    gc.collect() # Clear achce to avoid cuda out of memory error
     torch.cuda.empty_cache()
 
     return (hold.count(True) / len(hold)) * 100
 
+# *********Note only one of the two chunks below should be uncommented*********
 
 
-    
-list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch = train(301, 50, train_dataset, valid_dataset, learn, device, model)
+
+
+# Uncomment this chunk to start training from a specific file in which training has already occured 
+
+states_checkpoint = torch.load('/home/vijay/Documents/413/playWriter/checkpoint/states_(600).txt')
+training_saves_checkpoint = torch.load('/home/vijay/Documents/413/playWriter/training_saves/saves_(600).txt')
+list_of_accuracy = training_saves_checkpoint['train_acc']
+list_of_vaccuracy = training_saves_checkpoint['valid_acc']
+list_of_epoch = training_saves_checkpoint['epoch']
+list_of_loss = training_saves_checkpoint['list_of_loss']
+train(401, 50, train_dataset, valid_dataset, learn, device, model, 601, list_of_accuracy, list_of_vaccuracy, list_of_epoch, list_of_loss, states_checkpoint)
+
+
+
+# Uncomment this line to start training from scratch
+
+# list_of_accuracy, list_of_vaccuracy, list_of_loss, list_of_epoch = train(401, 50, train_dataset, valid_dataset, learn, device, model)
+
+
 
 
 
