@@ -14,11 +14,6 @@ test_dataset = torch.Tensor(data_dictionary['test'])
 valid_dataset = torch.Tensor(data_dictionary['valid'])
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-# print("Training", flush=True)
-# x = train_dataset[0:50, :49, :].to(device)
-# y = train_dataset[0:50, 49:, :].to(device)
-# transformer = Transformer(6, 8, 512, 50, 1000, 6, 8, 8, 512, 50, 50, 10086, None).to(device)
-# loss_func = nn.CrossEntropyLoss()
 
 def shuffle_dataset(dataset: torch.Tensor):
     """Shuffle the data set batch wise when in the format (batch, sequence, embedding)"""
@@ -47,28 +42,9 @@ mask = mask.to(device)
 model = DecodeTransformer(3, 8, 10086, 768, 70, 1000, mask).to(device)
 
 
-# y = split_dataset(train_dataset, 50)
-# first = y[0]
-# tests, answers = split_batch_answers(first, 50)
-# tests = tests.to(device)
-# answers = answers.to(device)
 def learn(x):
   return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
 
-# loss_func = nn.CrossEntropyLoss()
-# optimizer = torch.optim.Adam(model.parameters(recurse=True), lr=1, betas=(0.9, 0.98), eps=pow(10, -9))
-# scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,learn)
-
-# for i in range(10000):
-#     results = model.forward(tests)
-#     pre_logits= model.pre_softmax
-#     loss = loss_func(pre_logits.reshape((pre_logits.shape[0] * pre_logits.shape[1], pre_logits.shape[2])).float(), torch.argmax(answers, 2).flatten())
-#     #loss.retain_grad()
-#     loss.backward()
-#     optimizer.step()
-#     optimizer.zero_grad()
-#     scheduler.step()
-#     print(f'the loss is {loss.item()}')
 
 
 
