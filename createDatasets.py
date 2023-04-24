@@ -68,4 +68,4 @@ train_dataset = torch.Tensor(train_dataset)
 test_dataset = torch.Tensor(test_dataset)
 valid_dataset = torch.Tensor(valid_dataset)
 
-torch.save({'train': train_dataset, 'valid': valid_dataset, 'test': test_dataset, 'start_token': start_token, "unique_words_list": unique_words, 'train_len': train_len, 'test_len': test_len}, '/home/vijay/Documents/413/playWriter/dataset/data.txt')
+torch.save({'train': train_dataset, 'valid': valid_dataset, 'test': test_dataset, 'start_token': start_token, "unique_words_list": unique_words, 'train_len': train_len, 'test_len': test_len}, 'dataset/data.txt')
