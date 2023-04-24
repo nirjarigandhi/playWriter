@@ -19,3 +19,5 @@ After this followed a addition of the original inputs and a normalization.
 Next was a feedforward network of 1 layer (found in *feedforward.py*) the hidden size used was 1000 but was also rescaled to its original 768 embedding size.
 
 Again followed by an addition of the outputs of the multihead attention layer followed by a normalization.
+
+We used a total of 3 of these layers in Blue that fed into eachother which is indicated by the yellow arrow.
