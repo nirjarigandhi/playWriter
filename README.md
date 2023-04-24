@@ -5,6 +5,8 @@
 ## Introduction
 Our task is to use the decoder layer of a transformer (modeled in the structure of GPT-2) to generate Sheakespeare sounding sentences using the plays *Romeo and Juliet* and *Hamlet*. Note that the entire transformer class was built from scratch using resources like https://jalammar.github.io/illustrated-transformer/,  https://nlp.seas.harvard.edu/2018/04/03/attention.html, https://jalammar.github.io/illustrated-gpt2/,  and the paper [Attention Is All You Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf). The inputs to our model is 50 word long sentences taken from the two plays modeled in the form of one-hot vectors. The inputs had structure (batch length, sentence/sequence length, embedding size). Similarly the outputs are also one-hot vectors of the same shape. The embedding size of the raw one hot vector was 10086.
 
+**Note all images used in the report can be found in the images folder** 
+
 ## Model Figure
 Here is the structure of our model whose code is found in *Decode_only_transformer.py* using the class in *decode_custom.py* ![Custom Decoding Layer](images/OurTransformer.png) 
 
