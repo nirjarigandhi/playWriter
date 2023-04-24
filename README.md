@@ -28,4 +28,14 @@ First in the input embeddings we used a learnable matrix of size (10086, 768) to
 
 After the 3 decoding layers there was one matrix of (786, 10086) used to bring the outputs back to the original embedding size.
 
-In total after using pytorch, there are 
+In total after using pytorch to count, there are 40852992 trainable parameters
+
+Using Pytorch to count:
+
+`from Decode_only_transformer import *
+model = DecodeTransformer(3, 8, 10086, 768, 70, 1000, None)
+parameters = list(model.parameters())
+count = 0
+for a in parameters:
+    count += len(list(a.flatten()))
+print(count)`
