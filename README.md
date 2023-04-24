@@ -3,7 +3,7 @@
 ---
 
 ## Introduction
-Our task is to use the decoder layer of a transformer (modeled in the structure of GPT-2) to generate Sheakespeare sounding sentences using the plays *Romeo and Juliet* and *Hamlet*. Note that the entire transformer class was built from scratch using resources like https://jalammar.github.io/illustrated-transformer/,  https://nlp.seas.harvard.edu/2018/04/03/attention.html, and https://jalammar.github.io/illustrated-gpt2/. The inputs to our model is 50 word long sentences taken from the two plays modeled in the form of one-hot vectors. The inputs had structure (batch length, sentence/sequence length, embedding size). Similarly the outputs are also one-hot vectors of the same shape. The embedding size of the raw one hot vector was 10086.
+Our task is to use the decoder layer of a transformer (modeled in the structure of GPT-2) to generate Sheakespeare sounding sentences using the plays *Romeo and Juliet* and *Hamlet*. Note that the entire transformer class was built from scratch using resources like https://jalammar.github.io/illustrated-transformer/,  https://nlp.seas.harvard.edu/2018/04/03/attention.html, https://jalammar.github.io/illustrated-gpt2/,  and the paper [Attention Is All You Need](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf). The inputs to our model is 50 word long sentences taken from the two plays modeled in the form of one-hot vectors. The inputs had structure (batch length, sentence/sequence length, embedding size). Similarly the outputs are also one-hot vectors of the same shape. The embedding size of the raw one hot vector was 10086.
 
 ## Model Figure
 Here is the structure of our model whose code is found in *Decode_only_transformer.py* using the class in *decode_custom.py* ![Custom Decoding Layer](images/Neural_Net1.png) 
@@ -75,6 +75,8 @@ def learn(x):
 ```
 
 Note that the batch size of 50 sentences were chosen so that we could use a gpu without running out of memory for a faster training computation time.
+
+We chose the value of 768 for the embedding inside the decoding layer since this is what GPT-2 used (https://jalammar.github.io/illustrated-gpt2/) and given our inexperience we went with this number.
 
 ## Quantitative Measures
 To train our model we took the first 49 words of every sentence and let the model predict the 2nd to 50th word. This was faciliated using an attention mask to prevent the model from looking ahead further down the sentence. The accuracy of our model was how many of these words were predicted correctly given the previous words. In effect each sentence presented 49 tests for the model. 
