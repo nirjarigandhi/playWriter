@@ -40,4 +40,9 @@ count = 0
 for a in parameters:
     count += len(list(a.flatten()))
 print(count)
-````
+```
+
+## Model Examples
+Sadly the the test accuracy was only 1.21 %, while it may have gotten words correctly it did not get entire lines correct. 
+
+
