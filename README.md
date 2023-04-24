@@ -6,7 +6,7 @@
 Our task is to use the decoder layer of a transformer (modeled in the structure of GPT-2) to generate Sheakespeare sounding sentences using the plays *Romeo and Juliet* and *Hamlet*. Note that the entire transformer class was built from scratch using resources like https://jalammar.github.io/illustrated-transformer/,  https://nlp.seas.harvard.edu/2018/04/03/attention.html, and https://jalammar.github.io/illustrated-gpt2/. The inputs to our model is 50 word long sentences taken from the two plays modeled in the form of one-hot vectors. The inputs had structure (batch length, sentence/sequence length, embedding size). Similarly the outputs are also one-hot vectors of the same shape. The embedding size of the raw one hot vector was 10086.
 
 ## Model Figure
-Here is the structure of our model ![Custom Decoding Layer](images/Neural_Net1.png) whose code is found in *Decode_only_transformer.py*
+Here is the structure of our model whose code is found in *Decode_only_transformer.py* using the class in *decode_custom.py* ![Custom Decoding Layer](images/Neural_Net1.png) 
 
 We built this model entirely from scratch. After parsing the data into groups of 50 sentences with a vocabulary size (embedding size 10086) we used a trainable weight matrix to reduce this dimensionality from 10086 to 768. Then using the positional encoding method we learned from class involving the Sine and Cosine functions we created a matrix with positional encodings with dimensionality (50, 768) to sum with the newly transformed word embeddings. This can be found in *Posencoding.py*. 
 
@@ -28,7 +28,7 @@ First in the input embeddings we used a learnable matrix of size (10086, 768) to
 
 After the 3 decoding layers there was one matrix of (768, 10086) used to bring the outputs back to the original embedding size.
 
-In total after using pytorch to count, there are 40852992 trainable parameters
+In total after using pytorch to count, there are 40,852,992 trainable weights
 
 Using Pytorch to count:
 
@@ -56,6 +56,11 @@ The data was first collected from “https://www.folger.edu/explore/shakespeares
 
 ## Data Split
 Once the data is cleaned, the data would be split into training, testing and validation sets respectively using the 80/10/10 dividing technique. The data is split in this way because a transformer requires more data points to be trained accurately and requires learning a lot as it wouldn't be able to make accurate predictions without knowing the context of how the words are used and what they mean. The testing and validation are both split to get 10% of data each so that we are able to test and validate the model accurately while also having the model trained properly to understand the context of the words being used in the sentences.
+
+## Training Curve
+![Training Curve](images/trainingcurve.png)
+
+This is a picture of our training curve. As you can see the validation accuracy was not signifigantly higher than 1%. We trained this model using the training set of approximately 888 sentences of 50 words each for 1000 epochs. We used the Adam optimizer and grouped our data into randomly shuffled batches with each epoch. We also implemented a scheduler to provide a warmup for the learning rate as the authors of the Attention Is All You Need Paper did as well. The validation accuracy is cut off on the graph despite being recorded in the same frequency as the training accuracy. 
 
 
 
