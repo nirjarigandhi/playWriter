@@ -45,4 +45,17 @@ print(count)
 ## Model Examples
 Sadly the the test accuracy was only 1.21 %, while it may have gotten words correctly it did not get entire lines correct. 
 
+## Data Source
+The data set that we intend to use for the project is a collection of Shakespeare’s plays. We were able to locate a website: https://www.folger.edu/explore/shakespeares-works/ which offers free access to all of the 37 plays that Shakespeare has written in his lifetime. This website provides the plays so that they can be used for educational purposes but doesn’t allow for the use of the data for redistribution or commercial purposes, which satisfies our requirements for the purposes of the project.
+
+## Data Summary
+In total the plays that we used contain 10,212 lines and 55,523 words. Using these 2 plays, we formed 1111 sets of 50 words each in order to form the 3 sets required to train, test and validate the model. This means that our training set had 888 sets of 50 words each, the testing set had 111 sets of 50 words each and validation set had 112 sets of 50 words each. 
+
+## Data Transformation
+The data was first collected from “https://www.folger.edu/explore/shakespeares-works/” and we chose to use the plays Romeo and Juliet and Hamlet in order to create the dataset. We downloaded the plays and removed the “Prologue”, “Act x” and “Scene x” headings and the line dividers following that. We also removed the heading indicating that actors were coming into the scene and leaving the scene as well as performing some actions. These headings were in the form of “[enter]”. Once the datasets were parsed and cleaned, we split the data into sets of 50 words in each list and converted each of those lists into one-hot vectors to be supplied into the model.
+
+## Data Split
+Once the data is cleaned, the data would be split into training, testing and validation sets respectively using the 80/10/10 dividing technique. The data is split in this way because a transformer requires more data points to be trained accurately and requires learning a lot as it wouldn't be able to make accurate predictions without knowing the context of how the words are used and what they mean. The testing and validation are both split to get 10% of data each so that we are able to test and validate the model accurately while also having the model trained properly to understand the context of the words being used in the sentences.
+
+
 
