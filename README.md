@@ -74,6 +74,49 @@ def learn(x):
     return pow(512, -0.5) * min(pow(x+ 0.0001, -0.5), x * pow(4000, -0.5))
 ```
 
+Note that the batch size of 50 sentences were chosen so that we could use a gpu without running out of memory for a faster training computation time.
+
+## Quantitative Measures
+To train our model we took the first 49 words of every sentence and let the model predict the 2nd to 50th word. This was faciliated using an attention mask to prevent the model from looking ahead further down the sentence. The accuracy of our model was how many of these words were predicted correctly given the previous words. In effect each sentence presented 49 tests for the model. 
+
+
+## Quantitative and Qualitative Results
+In terms of the quantantive results, the model performed really well on in learning the training set, but failed to capture enough information to properly predict sentences in the validation set. To us this indicates that the model was memorizing the words instead of learning them.
+
+## Justification of Results
+Our results were strange since the training accuracy was able to climb to 97 % after 1000 epoch while the validation accuracy struggled to climb pas 1.5 %. We believe that the cause of this was a small training set. While 888 training setnences seemed like a lot in comparison to some of the previous machine learning work we've done it was not big enough to accomplish a generative task such as this one. This realization came late and there was not enough time to retrain using more plays, and because we might not have had the gpu memory do deal with an increased data set. It is promising that the model can overfit a small data set such as our training set, but in the future we would need much more data so that the model can build better dependancies between words instead of memorizing words that should come next.
+
+## Ethical Considerations
+The creation of this model could cause ethical implications on the playwright community as this model would be able to produce plays similar to those of shakespeare. Shakespeare was the most popular and famous playwright and a model that is able to create plays as everlasting and classic can cause many playwright’s works to be disregarded and eventually cause them to lose their jobs. Using a model such as this one can cause ethical concerns within the playwright community as plays are considered to be best written by hand and from the heart and they could argue that a model creating the plays wouldn’t have the same effect and be considered unethical. 
+
+Similarly students studying the works of Shakespeare could use this tool in an academically dishonest way. For instance if students were tasked with writing their own soliloquy as an assignment this tool has the potential to write the entire assignment for them. Also students tasked with playwriting could potentially have this tool write components of it for them.
+
+## Authors
+The tasks that we would have to do in order to achieve our goals are collecting data, cleaning data so that it can be used to train, test and validate the model, create mini batches and understand what the data represents, build the model and make architecture decisions relating to the model, create the train function for the model, select the correct hyperparameters to train the model, perform sanity checks such as overfitting the model, plot curves returned by the trained model, create the get_accuracy function for the model and use that function to check the accuracy of the model and improve parameters accordingly. 
+
+The tasks will be divided as follows:
+- Collecting data: Nirjari 
+- Cleaning data: Nirjari
+- Create mini-batches and understanding data: Nirjari
+- Design model and make architecture decisions: Nirjari and Vijay
+- Create encoder and decoder : Vijay and Nirjari
+- Create train function: Vijay
+- Train model and select hyperparameters accordingly: Vijay
+- Perform sanity checks: Vijay
+- Create plotting function: Nirjari 
+- Use plotting function: Nirjari
+- Create accuracy functions: Vijay
+- Check accuracy of model and adjust parameters according to results: Vijay
+- Create prediction function to predict next line in play: Nirjari
+
+
+## Advanced Concept
+Our model uses the advanced concepts of transformer to create a generative model. 
+
+
+
+
+
 
 
 
