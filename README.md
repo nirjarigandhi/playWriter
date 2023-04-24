@@ -8,4 +8,4 @@ Our task is to use the decoder layer of a transformer (modeled in the structure 
 ## Model Figure
 Here is the structure of our model ![Custom Decoding Layer](images/Neural_Net1.png)
 
-
+We built this model entirely from scratch. After parsing the data into groups of 50 sentences with a vocabulary size (embedding size 10086) we used a trainable weight matrix to reduce this dimensionality from 10086 to 768. Then using the positional encoding method we learned from class involving the Sine and Cosine functions we created a matrix with positional encodings with dimensionality (50, 768) to sum with the newly transformed word embeddings.
